@@ -1,0 +1,18 @@
+{
+  "name": "create-module",
+  "version": "1.0.0",
+  "description": "Helper to create a module",
+  "main": "index.js",
+  "bin": "./cli.js",
+  "preferGlobal": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Finn Pauls",
+  "license": "MIT",
+  "dependencies": {
+    "ghauth": "^0.3.1",
+    "request": "^2.49.0"
+  },
+  "devDependencies": {}
+}
