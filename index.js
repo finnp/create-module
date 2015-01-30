@@ -28,6 +28,7 @@ function createModule(name, token, cb) {
     createDir,
     gitInit,
     createReadme,
+    createGitignore,
     npmInit,
     parallel.bind(null, [gitPush, changeDescription])
     ], function (err) {
@@ -67,7 +68,13 @@ function createModule(name, token, cb) {
   }
 
   function createReadme(cb) {
+    console.log('Create readme.md...')
     fs.writeFile(path.join(dir, 'readme.md'), readmeTemplate.replace(/<package>/g, name), cb)
+  }
+  
+  function createGitignore(cb) {
+    console.log('Create .gitignore...')
+    fs.writeFile(path.join(dir, '.gitignore'), 'node_modules\n', cb)
   }
 
   function npmInit(cb) {
@@ -90,7 +97,7 @@ function createModule(name, token, cb) {
   function gitPush(cb) {
     console.log('Commit and push to GitHub')
     var finishGit = [
-      'git add package.json readme.md',
+      'git add --all',
       'git commit -m "Initial commit"',
       'git push origin master'
     ]
