@@ -16,8 +16,9 @@ cd <package>
 git init
 git remote add origin <githubrepo>
 echo <readme> > readme.md
+echo node_modules > .gitignore
 npm init
-git add readme.md package.json
+git add --all
 git commit -m "initial commit"
 git push origin master
 # set github repo description to package.json description
