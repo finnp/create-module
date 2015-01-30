@@ -29,12 +29,26 @@ function createModule(name, token, cb) {
           if(err) return cb(err)
           npmInit(function (err) {
             if(err) return cb(err)
-            gitPush(cb)
+
+            var cnt = 2
+            function done (err) {
+              if (--cnt === 0) cb(err)
+            }
+
+            // git push and change github description in parallel
+            gitPush(done)
+            changeDescription(done)
           })
         })
       })
     })
-  
+
+    function changeDescription (cb) {
+      input.description = require(path.join(dir, 'package.json')).description
+      var repoUrl = [base, 'repos', repo.full_name].join('/')
+      request.patch(repoUrl, { json: input, headers: headers }, cb)
+    }
+
     function createDir(cb) {
       console.log('Creating directory ' + dir)
       fs.mkdir(dir, cb)
