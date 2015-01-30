@@ -20,6 +20,7 @@ npm init
 git add readme.md package.json
 git commit -m "initial commit"
 git push origin master
+# set github repo description to package.json description
 ```
 
 The readme.md is initialised with this template:
@@ -28,4 +29,4 @@ The readme.md is initialised with this template:
 [![NPM](https://nodei.co/npm/<package>.png)](https://nodei.co/npm/<package>/)
 
 ```
- 
+
