@@ -38,28 +38,20 @@ function createModule(name, token, cb) {
           if(err) return cb(err)
           fs.writeFile(path.join(dir, 'readme.md'), readmeTemplate.replace(/<package>/g, name), function (err) {
             if(err) return cb(err)
-<<<<<<< HEAD
             npmInit(function (err) {
               if(err) return cb(err)
-              gitPush(cb)
+              var cnt = 2
+              function done (err) {
+                if (--cnt === 0) cb(err)
+              }
+  
+              // git push and change github description in parallel
+              gitPush(done)
+              changeDescription(done)
             })
           })
         })
       })
-=======
-
-            var cnt = 2
-            function done (err) {
-              if (--cnt === 0) cb(err)
-            }
-
-            // git push and change github description in parallel
-            gitPush(done)
-            changeDescription(done)
-          })
-        })
-      })
-    })
 
     function changeDescription (cb) {
       input.description = require(path.join(dir, 'package.json')).description
@@ -92,33 +84,6 @@ function createModule(name, token, cb) {
         cb(err)
       })
     }
->>>>>>> dee587ca1784e57284c918c5afd46c0ffb500ce2
-
-      function createDir(cb) {
-        console.log('Creating directory ' + dir)
-        fs.mkdir(dir, cb)
-      }
-
-      function gitInit(cb) {
-        console.log('Initialize git..')
-        exec('git init && git remote add origin ' + repo.clone_url, {cwd: dir}, function (err, stdo, stde) {
-          process.stderr.write(stde)
-          cb(err)
-        })
-      }
-
-      function gitPush(cb) {
-        console.log('Commit and push to GitHub')
-        var finishGit = [
-          'git add package.json readme.md',
-          'git commit -m "Initial commit"',
-          'git push origin master'
-        ]
-        exec(finishGit.join(' && '), {cwd: dir}, function (err, stdo, stde) {
-          process.stderr.write(stde)
-          cb(err)
-        })
-      }
 
       function npmInit(cb) {
         var npmInit = spawn('npm', ['init'], {cwd: dir, stdio: [process.stdin, 'pipe', 'pipe']})
