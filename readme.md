@@ -25,7 +25,7 @@ git push origin master
 
 The readme.md is initialised with this template:
 ```md
-#<package>
+# <package>
 [![NPM](https://nodei.co/npm/<package>.png)](https://nodei.co/npm/<package>/)
 
 ```

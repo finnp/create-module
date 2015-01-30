@@ -14,7 +14,9 @@
   "license": "MIT",
   "dependencies": {
     "ghauth": "^0.3.1",
-    "request": "^2.49.0"
+    "request": "^2.49.0",
+    "run-parallel": "^1.0.0",
+    "run-series": "^1.0.2"
   },
   "devDependencies": {},
   "repository": {
