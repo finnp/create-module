@@ -5,7 +5,7 @@ Helper tool for the usual steps to create a module:
 
 ## Usage
 ```
-create-module <package>
+create-module <package> [--check]
 ```
 
 Does the following work-flow:
@@ -24,10 +24,12 @@ git push origin master
 # set github repo description to package.json description
 ```
 
+if the 'check' flag is used, it will check npm to see if module exists.
+
 The readme.md is initialised with this template:
+
 ```md
 # <package>
 [![NPM](https://nodei.co/npm/<package>.png)](https://nodei.co/npm/<package>/)
 
 ```
-

@@ -12,18 +12,16 @@ module.exports = createModule
 
 var readmeTemplate = '# <package>\n[![NPM](https://nodei.co/npm/<package>.png)](https://nodei.co/npm/<package>/)\n'
 
-function createModule(name, token, cb) {
+function createModule(name, token, options, cb) {
   var headers = {"user-agent": "npm create-module"}
   var dir = path.join(process.cwd(), name)
   headers['Authorization'] = 'token ' + token
   var input = {
     name: name
   }
-  
-  var repo
 
-  series([
-    checkName,
+  var repo
+  var processList = [
     createGitHubrepo,
     createDir,
     gitInit,
@@ -31,10 +29,17 @@ function createModule(name, token, cb) {
     createGitignore,
     npmInit,
     parallel.bind(null, [gitPush, changeDescription])
-    ], function (err) {
-      if(err) console.error('Error: ' + err.message)
-      else console.log('Done.')
-    })
+  ]
+
+  if (options.check !== undefined) {
+    console.log('Checking npm for pre-existing module name')
+    processList = [checkName].concat(processList)
+  }
+
+  series(processList, function (err) {
+    if(err) console.error('Error: ' + err.message)
+    else console.log('Done.')
+  })
 
   function checkName(fn) {
     request.head(registry + '/' + name, { headers: headers }, function (err, res) {
@@ -53,7 +58,7 @@ function createModule(name, token, cb) {
       cb(null, repo)
     })
   }
-  
+
   function createDir(cb) {
     console.log('Creating directory ' + dir)
     fs.mkdir(dir, cb)
@@ -71,7 +76,7 @@ function createModule(name, token, cb) {
     console.log('Create readme.md...')
     fs.writeFile(path.join(dir, 'readme.md'), readmeTemplate.replace(/<package>/g, name), cb)
   }
-  
+
   function createGitignore(cb) {
     console.log('Create .gitignore...')
     fs.writeFile(path.join(dir, '.gitignore'), 'node_modules\n', cb)
@@ -93,7 +98,7 @@ function createModule(name, token, cb) {
     var repoUrl = [base, 'repos', repo.full_name].join('/')
     request.patch(repoUrl, { json: input, headers: headers }, cb)
   }
-  
+
   function gitPush(cb) {
     console.log('Commit and push to GitHub')
     var finishGit = [
@@ -108,5 +113,3 @@ function createModule(name, token, cb) {
   }
 
 }
-
-
