@@ -16,11 +16,15 @@ var authOptions = {
 }
 
 if(process.argv.length === 2) {
-  console.log('Usage: create-module <name>')
+  console.log('Usage: create-module <name> [--check] [--offline]');
   process.exit()
 }
 
 var argv = require('minimist')(process.argv.slice(2));
+if (argv._.length < 1) {
+  console.log('Usage: create-module <name> [--check] [--offline]');
+  process.exit(0);
+}
 
 ghauth(authOptions, function (err, authData) {
   if(err) return console.error(err)

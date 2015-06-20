@@ -1,6 +1,6 @@
 {
   "name": "create-module",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Helper to create a module",
   "main": "index.js",
   "bin": {

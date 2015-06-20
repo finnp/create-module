@@ -20,18 +20,23 @@ function createModule(name, token, options, cb) {
     name: name
   }
 
-  var repo
-  var processList = [
-    createGitHubrepo,
-    createDir,
-    gitInit,
-    createReadme,
-    createGitignore,
-    npmInit,
-    parallel.bind(null, [gitPush, changeDescription])
-  ]
-
+  var repo,
+      processList = [
+                      createDir,
+                      gitInit,
+                      createReadme,
+                      createGitignore,
+                      npmInit,
+                      gitAddAndCommit
+                    ]
+  // Was the offline flag provided?
+  if (options.offline === undefined) {
+    // The offline flag was not provided, hit npm and github
+    processList = processList.concat([createGitHubrepo, gitRemoteAddOrigin])
+    processList.push(parallel.bind(null, [gitPush, changeDescription]))
+  }
   if (options.check !== undefined) {
+    // Check flag was provided, check npm
     console.log('Checking npm for pre-existing module name')
     processList = [checkName].concat(processList)
   }
@@ -61,12 +66,23 @@ function createModule(name, token, options, cb) {
 
   function createDir(cb) {
     console.log('Creating directory ' + dir)
-    fs.mkdir(dir, cb)
+    fs.mkdir(dir, function() {
+      process.chdir(dir);
+      cb()
+    })
   }
 
   function gitInit(cb) {
     console.log('Initialize git..')
-    exec('git init && git remote add origin ' + repo.clone_url, {cwd: dir}, function (err, stdo, stde) {
+    exec('git init', function (err, stdo, stde) {
+      process.stderr.write(stde)
+      cb(err)
+    })
+  }
+
+  function gitRemoteAddOrigin(cb) {
+    console.log('Adding remote origin')
+    exec('git remote add origin ' + repo.clone_url, {cwd: dir}, function (err, stdo, stde) {
       process.stderr.write(stde)
       cb(err)
     })
@@ -99,14 +115,21 @@ function createModule(name, token, options, cb) {
     request.patch(repoUrl, { json: input, headers: headers }, cb)
   }
 
-  function gitPush(cb) {
-    console.log('Commit and push to GitHub')
+  function gitAddAndCommit(cb){
+    console.log('Adding all and committing all')
     var finishGit = [
-      'git add --all',
-      'git commit -m "Initial commit"',
-      'git push origin master'
-    ]
-    exec(finishGit.join(' && '), {cwd: dir}, function (err, stdo, stde) {
+       'git add --all',
+       'git commit -m "Initial commit"'
+     ]
+     exec(finishGit.join(' && '), {cwd: dir}, function (err, stdo, stde) {
+       process.stderr.write(stde)
+       cb(err)
+     })
+  }
+
+  function gitPush(cb) {
+    console.log('Push to GitHub: ' + dir)
+    exec('git push origin master', {cwd: dir}, function (err, stdo, stde) {
       process.stderr.write(stde)
       cb(err)
     })
