@@ -12,8 +12,8 @@ module.exports = createModule
 
 var readmeTemplate = '# <package>\n[![NPM](https://nodei.co/npm/<package>.png)](https://nodei.co/npm/<package>/)\n'
 
-function createModule(name, token, options, cb) {
-  var headers = {"user-agent": "npm create-module"}
+function createModule (name, token, options, cb) {
+  var headers = {'user-agent': 'npm create-module'}
   var dir = path.join(process.cwd(), name)
   headers['Authorization'] = 'token ' + token
   var input = {
@@ -30,23 +30,23 @@ function createModule(name, token, options, cb) {
                       gitAddAndCommit
                     ]
   // Was the offline flag provided?
-  if (options.offline === undefined) {
+  if (!options.offline) {
     // The offline flag was not provided, hit npm and github
     processList = processList.concat([createGitHubrepo, gitRemoteAddOrigin])
     processList.push(parallel.bind(null, [gitPush, changeDescription]))
   }
-  if (options.check !== undefined) {
+  if (options.check) {
     // Check flag was provided, check npm
     console.log('Checking npm for pre-existing module name')
     processList = [checkName].concat(processList)
   }
 
   series(processList, function (err) {
-    if(err) console.error('Error: ' + err.message)
+    if (err) console.error('Error: ' + err.message)
     else console.log('Done.')
   })
 
-  function checkName(fn) {
+  function checkName (fn) {
     request.head(registry + '/' + name, { headers: headers }, function (err, res) {
       if (err) return fn(err)
       if (res.statusCode === 200) return fn(new Error('"' + name + '" is already taken on npm.'))
@@ -54,25 +54,25 @@ function createModule(name, token, options, cb) {
     })
   }
 
-  function createGitHubrepo(cb) {
+  function createGitHubrepo (cb) {
     console.log('Creating GitHub repo..')
     request.post(base + '/user/repos', {json: input, headers: headers}, function (err, res, repository) {
-      if(err) return cb(err)
+      if (err) return cb(err)
       repo = repository
       console.log('Created repo', repo.full_name)
       cb(null, repo)
     })
   }
 
-  function createDir(cb) {
+  function createDir (cb) {
     console.log('Creating directory ' + dir)
-    fs.mkdir(dir, function() {
-      process.chdir(dir);
+    fs.mkdir(dir, function () {
+      process.chdir(dir)
       cb()
     })
   }
 
-  function gitInit(cb) {
+  function gitInit (cb) {
     console.log('Initialize git..')
     exec('git init', function (err, stdo, stde) {
       process.stderr.write(stde)
@@ -80,7 +80,7 @@ function createModule(name, token, options, cb) {
     })
   }
 
-  function gitRemoteAddOrigin(cb) {
+  function gitRemoteAddOrigin (cb) {
     console.log('Adding remote origin')
     exec('git remote add origin ' + repo.clone_url, {cwd: dir}, function (err, stdo, stde) {
       process.stderr.write(stde)
@@ -88,24 +88,24 @@ function createModule(name, token, options, cb) {
     })
   }
 
-  function createReadme(cb) {
+  function createReadme (cb) {
     console.log('Create readme.md...')
     fs.writeFile(path.join(dir, 'readme.md'), readmeTemplate.replace(/<package>/g, name), cb)
   }
 
-  function createGitignore(cb) {
+  function createGitignore (cb) {
     console.log('Create .gitignore...')
     fs.writeFile(path.join(dir, '.gitignore'), 'node_modules\n', cb)
   }
 
-  function npmInit(cb) {
+  function npmInit (cb) {
     var npmInit = spawn('npm', ['init'], {cwd: dir, stdio: [process.stdin, 'pipe', 'pipe']})
     npmInit.stdout.pipe(process.stdout)
     npmInit.stderr.pipe(process.stderr)
     npmInit.on('close', function (code) {
       var err
-      if(code > 0) err = new Error('Failed npm init')
-        cb(err)
+      if (code > 0) err = new Error('Failed npm init')
+      cb(err)
     })
   }
 
@@ -115,24 +115,23 @@ function createModule(name, token, options, cb) {
     request.patch(repoUrl, { json: input, headers: headers }, cb)
   }
 
-  function gitAddAndCommit(cb){
+  function gitAddAndCommit (cb) {
     console.log('Adding all and committing all')
     var finishGit = [
        'git add --all',
        'git commit -m "Initial commit"'
      ]
-     exec(finishGit.join(' && '), {cwd: dir}, function (err, stdo, stde) {
-       process.stderr.write(stde)
-       cb(err)
-     })
+    exec(finishGit.join(' && '), {cwd: dir}, function (err, stdo, stde) {
+      process.stderr.write(stde)
+      cb(err)
+    })
   }
 
-  function gitPush(cb) {
+  function gitPush (cb) {
     console.log('Push to GitHub: ' + dir)
     exec('git push origin master', {cwd: dir}, function (err, stdo, stde) {
       process.stderr.write(stde)
       cb(err)
     })
   }
-
 }

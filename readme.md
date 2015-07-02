@@ -1,6 +1,8 @@
 # create-module
 [![NPM](https://nodei.co/npm/create-module.png)](https://nodei.co/npm/create-module/)
 
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
 Helper tool for the usual steps to create a module:
 
 ## Usage
