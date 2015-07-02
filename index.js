@@ -25,16 +25,15 @@ function createModule (name, token, options, cb) {
                       createDir,
                       gitInit,
                       createReadme,
-                      createGitignore,
-                      npmInit,
-                      gitAddAndCommit
+                      createGitignore
                     ]
-  // Was the offline flag provided?
-  if (!options.offline) {
-    // The offline flag was not provided, hit npm and github
-    processList = processList.concat([createGitHubrepo, gitRemoteAddOrigin])
-    processList.push(parallel.bind(null, [gitPush, changeDescription]))
-  }
+
+  if (!options.offline) processList.push(createGitHubrepo, gitRemoteAddOrigin)
+
+  processList.push(npmInit, gitAddAndCommit)
+
+  if (!options.offline) processList.push(parallel.bind(null, [gitPush, changeDescription]))
+
   if (options.check) {
     // Check flag was provided, check npm
     console.log('Checking npm for pre-existing module name')
