@@ -5,7 +5,7 @@ Helper tool for the usual steps to create a module:
 
 ## Usage
 ```
-create-module <package> [--check]
+create-module <package> [--check] [--offline]
 ```
 
 Does the following work-flow:
@@ -25,6 +25,7 @@ git push origin master
 ```
 
 if the 'check' flag is used, it will check npm to see if module exists.
+if the 'offline' flag is used, it will not create a new Github repo and push the code to Github
 
 The readme.md is initialised with this template:
 
