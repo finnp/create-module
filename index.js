@@ -34,22 +34,21 @@ function createModule (name, token, options, cb) {
 
   if (!options.offline) processList.push(parallel.bind(null, [gitPush, changeDescription]))
 
-  if (options.check) {
-    // Check flag was provided, check npm
-    console.log('Checking npm for pre-existing module name')
-    processList = [checkName].concat(processList)
-  }
+  if (options.check) processList.unshift(checkName)
 
   series(processList, function (err) {
     if (err) console.error('Error: ' + err.message)
     else console.log('Done.')
   })
 
-  function checkName (fn) {
+  // Steps
+
+  function checkName (cb) {
+    console.log('Checking npm for pre-existing module name')
     request.head(registry + '/' + name, { headers: headers }, function (err, res) {
-      if (err) return fn(err)
-      if (res.statusCode === 200) return fn(new Error('"' + name + '" is already taken on npm.'))
-      fn(null)
+      if (err) return cb(err)
+      if (res.statusCode === 200) return cb(new Error('"' + name + '" is already taken on npm.'))
+      cb(null)
     })
   }
 
